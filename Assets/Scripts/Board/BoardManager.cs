@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class BoardManager : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class BoardManager : MonoBehaviour
 
     private List<CardController> controllers = new List<CardController>();
     private List<CardController> selectedCards = new List<CardController>();
+    
+    private bool canPlay = false;
 
     IEnumerator Start()
     {
@@ -36,6 +39,7 @@ public class BoardManager : MonoBehaviour
 
         SetupBoard();
     }
+    
 
     void SetupBoard()
     {
@@ -72,6 +76,9 @@ public class BoardManager : MonoBehaviour
 
         gameCards = Shuffle(gameCards);
 
+        var totalCardsToLoad = gameCards.Count;
+        var loadedCardCount = 0;
+        
         foreach (var cardData in gameCards)
         {
             var view = Instantiate(cardViewPrefab, gridParent.transform).GetComponent<CardView>();
@@ -80,18 +87,29 @@ public class BoardManager : MonoBehaviour
 
             view.StartCoroutine(SpriteLoader.LoadSpriteFromUrl(cardData.SpritePathOrURL, sprite =>
             {
-                if (sprite != null) sprite.name = cardData.Name;
+                if (sprite != null) 
+                    sprite.name = cardData.Name;
                 view.SetFront(sprite);
+                
+                loadedCardCount++;
+                if (loadedCardCount == totalCardsToLoad)
+                {
+                    StartCoroutine(ShowCards(2.5f));
+                }
+
             }));
         }
     }
 
     void OnCardSelected(CardController controller)
     {
+        if (!canPlay) 
+            return;
         if (selectedCards.Contains(controller) || controller.IsMatched)
             return;
 
         controller.Reveal();
+        print("Card Selected: " + controller.Data.Name);
         selectedCards.Add(controller);
 
         if (selectedCards.Count == 2)
@@ -137,4 +155,18 @@ public class BoardManager : MonoBehaviour
         }
         return list;
     }
+    
+    IEnumerator ShowCards(float duration)
+    {
+        canPlay = false;
+        foreach (var controller in controllers)
+            controller.Reveal();
+
+        yield return new WaitForSeconds(duration);
+
+        foreach (var controller in controllers)
+            controller.Hide();
+        canPlay = true;
+    }
+
 }

@@ -12,23 +12,24 @@ public class CardController : ICardController
         View = view;
         this.onCardSelected = onCardSelected;
         View.onCardClicked.AddListener(OnClick);
-        View.ShowBack();
+        View.FlipToBack();
     }
 
     public void OnClick()
     {
-        //if (IsMatched) return;
+        if (IsMatched) 
+            return;
         onCardSelected?.Invoke(this);
     }
 
     public void Reveal()
     {
-        View.ShowFront();
+        View.FlipToFront();
     }
 
     public void Hide()
     {
-        View.ShowBack();
+        View.FlipToBack();
     }
 
     public void SetMatched()

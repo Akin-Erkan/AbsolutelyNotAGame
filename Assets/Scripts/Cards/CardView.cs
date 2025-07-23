@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -16,7 +17,7 @@ public class CardView : MonoBehaviour
         frontSprite.name = sprite.name;
     }
 
-    public void ShowFront()
+    private void ShowFront()
     {
         if (frontSprite == null)
         {
@@ -24,10 +25,9 @@ public class CardView : MonoBehaviour
             return;
         }
         image.sprite = frontSprite;
-
     }
 
-    public void ShowBack()
+    private void ShowBack()
     {
         if (backSprite == null)
         {
@@ -37,7 +37,25 @@ public class CardView : MonoBehaviour
         image.sprite = backSprite;
     }
     
-    public void OnClick() // Button veya EventTrigger'dan çağrılmalı
+    public void FlipToFront(float duration = 0.4f)
+    {
+        transform.DORotate(new Vector3(0, 90, 0), duration / 2).OnComplete(() =>
+        {
+            ShowFront();
+            transform.DORotate(Vector3.zero, duration / 2);
+        });
+    }
+
+    public void FlipToBack(float duration = 0.4f)
+    {
+        transform.DORotate(new Vector3(0, 90, 0), duration / 2).OnComplete(() =>
+        {
+            ShowBack();
+            transform.DORotate(Vector3.zero, duration / 2);
+        });
+    }
+    
+    public void OnClick()
     {
         onCardClicked?.Invoke();
     }
