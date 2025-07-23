@@ -21,8 +21,29 @@ public class BoardManager : MonoBehaviour
     private int totalAttempts = 0;
     
     private bool canPlay = false;
+    
+    private List<int> matchedCardIds = new List<int>(); 
 
-    IEnumerator Start()
+
+    private void Awake()
+    {
+        MessageBroker.Default.Receive<LoadedGameSaveDataMessage>()
+            .Subscribe(OnGameSaveDataLoaded)
+            .AddTo(this);
+        MessageBroker.Default.Receive<NewGameMessage>()
+            .Subscribe(_ => StartNewGame())
+            .AddTo(this);
+    }
+
+    private void StartNewGame()
+    {
+        matchedCardIds.Clear();
+        totalAttempts = 0;
+        StartCoroutine(LoadCardsOnline());
+    }
+
+
+    private IEnumerator LoadCardsOnline()
     {
         string url = "https://raw.githubusercontent.com/Akin-Erkan/TouristGuideAIAssetBundle/main/Cards.json";
         using (UnityWebRequest www = UnityWebRequest.Get(url))
@@ -37,11 +58,37 @@ public class BoardManager : MonoBehaviour
 
             string json = www.downloadHandler.text;
             allCardData = JsonHelper.FromJson<CardData>(json).ToList();
-
+            totalAttempts = 0;
             Debug.Log($"JSON Downloaded. Card Count: {allCardData.Count}");
         }
 
         SetupBoard();
+    }
+    
+    private void LoadCardsFromLocal()
+    {
+        for (int i = 0; i < matchedCardIds.Count; i++)
+        {
+            var mathchedCards = controllers.FindAll(c => c.Data.CardId == matchedCardIds[i]);
+            foreach (var c in mathchedCards)
+            {
+                c.SetMatched();
+            }
+        }
+        SetupBoardWithLocalData(allCardData, matchedCardIds, totalAttempts);
+    }
+    
+    private void OnGameSaveDataLoaded(LoadedGameSaveDataMessage message)
+    {
+        if (message.GameSaveData == null)
+        {
+            StartCoroutine(LoadCardsOnline());
+            return;
+        }
+        allCardData = message.GameSaveData.cardDatas;
+        totalAttempts = message.GameSaveData.turns;
+        matchedCardIds = message.GameSaveData.matchedCardIds;
+        LoadCardsFromLocal();
     }
     
 
@@ -106,6 +153,47 @@ public class BoardManager : MonoBehaviour
             }));
         }
     }
+    
+    void SetupBoardWithLocalData(List<CardData> cardDatas, List<int> matchedCardIds, int turns)
+    {
+        foreach (Transform child in gridParent.transform)
+            Destroy(child.gameObject);
+        controllers.Clear();
+        selectedCards.Clear();
+
+        gridParent.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        gridParent.constraintCount = gridSizeX;
+        gridParent.cellSize = new Vector2(gridParent.cellSize.x / gridSizeX, gridParent.cellSize.y / gridSizeY);
+
+        
+        var totalCardsToLoad = cardDatas.Count;
+        var loadedCardCount = 0;
+        
+        foreach (var cardData in cardDatas)
+        {
+            var view = Instantiate(cardViewPrefab, gridParent.transform).GetComponent<CardView>();
+            var controller = new CardController(cardData, view, OnCardSelected);
+            if (matchedCardIds.Contains(cardData.CardId))
+                controller.SetMatched();
+            controllers.Add(controller);
+
+            view.StartCoroutine(SpriteLoader.LoadSpriteFromUrl(cardData.SpritePathOrURL, sprite =>
+            {
+                if (sprite != null) 
+                    sprite.name = cardData.Name;
+                view.SetFront(sprite);
+                
+                loadedCardCount++;
+                if (loadedCardCount == totalCardsToLoad)
+                {
+                    StartCoroutine(ShowCards(2.5f));
+                }
+
+            }));
+        }
+
+
+    }
 
     void OnCardSelected(CardController controller)
     {
@@ -132,6 +220,7 @@ public class BoardManager : MonoBehaviour
         {
             c1.SetMatched();
             c2.SetMatched();
+            matchedCardIds.Add(c1.Data.CardId);
             var totalCorrect = controllers.Count(c => c.IsMatched) / 2;
             MessageBroker.Default.Publish(new CorrectMatchMessage(c1, c2, totalCorrect, totalAttempts)); 
             MessageBroker.Default.Publish(new CurrentBoardStateMessage(controllers));
@@ -141,7 +230,7 @@ public class BoardManager : MonoBehaviour
             StartCoroutine(HideCardsAfterDelay(c1, c2));
             MessageBroker.Default.Publish(new WrongMatchMessage(c1, c2,totalAttempts)); 
         }
-
+        
         selectedCards.Clear();
     }
 
@@ -174,7 +263,10 @@ public class BoardManager : MonoBehaviour
         yield return new WaitForSeconds(duration);
 
         foreach (var controller in controllers)
-            controller.Hide();
+        {
+            if(!controller.IsMatched)
+                controller.Hide();
+        }
         canPlay = true;
     }
 

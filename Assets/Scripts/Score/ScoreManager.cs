@@ -14,6 +14,16 @@ public class ScoreManager : MonoBehaviour
     {
         MessageBroker.Default.Receive<CorrectMatchMessage>().Subscribe(OnCorrectMatch).AddTo(this);
         MessageBroker.Default.Receive<WrongMatchMessage>().Subscribe(OnWrongMatch).AddTo(this);
+        MessageBroker.Default.Receive<LoadedGameSaveDataMessage>().Subscribe(OnGameSaveDataLoaded).AddTo(this);
+    }
+    
+    private void OnGameSaveDataLoaded(LoadedGameSaveDataMessage message)
+    {
+        if (message.GameSaveData != null)
+        {
+            score = message.GameSaveData.score;
+            currentScoreCombo = 1; // Reset combo on game load
+        }
     }
     
     private void OnCorrectMatch(CorrectMatchMessage message)
