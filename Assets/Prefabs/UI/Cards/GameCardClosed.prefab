@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3437357228581660686}
   - component: {fileID: 2380785257001454542}
   - component: {fileID: 8835422735069877807}
+  - component: {fileID: -3234717998111476971}
   m_Layer: 5
   m_Name: GameCardClosed
   m_TagString: Untagged
@@ -119,5 +120,35 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 2380785257001454542}
   m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: -3234717998111476971}
+        m_TargetAssemblyTypeName: CardView, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &-3234717998111476971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 573004123514243024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ec623a1b2b6ac240b104a8a3c12336a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  image: {fileID: 2380785257001454542}
+  frontSprite: {fileID: 0}
+  backSprite: {fileID: 21300000, guid: a31bd72c67ba0e647b682069124a828e, type: 3}
+  onCardClicked:
     m_PersistentCalls:
       m_Calls: []
