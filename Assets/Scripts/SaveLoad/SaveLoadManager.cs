@@ -5,6 +5,7 @@ using UnityEngine;
 [DefaultExecutionOrder(1000)]
 public class SaveLoadManager : MonoBehaviour
 {
+    //TODO: we are using PlayerPrefs for simplicity, but we can use a more robust solution like a database or cloud storage for saving game data later with json after integrating user info etc.
     private GameSaveData gameSaveData;
 
     private bool isLoadingSavedGame = false;

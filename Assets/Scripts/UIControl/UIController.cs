@@ -25,6 +25,8 @@ public class UIController : MonoBehaviour
     private Button newGameButton;
     [SerializeField]
     private Button loadGameButton;
+    [SerializeField]
+    private Button mainMenuButton;
     
     
     
@@ -60,6 +62,11 @@ public class UIController : MonoBehaviour
             gamePanel.SetActive(true);
             endPanel.SetActive(false);
             MessageBroker.Default.Publish(new LoadGameMessage());
+        });
+        
+        mainMenuButton.onClick.AddListener(() =>
+        {
+            MessageBroker.Default.Publish(new MainMenuMessage());
         });
         
     }

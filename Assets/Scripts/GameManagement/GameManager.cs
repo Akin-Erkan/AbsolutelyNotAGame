@@ -1,18 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
-        
+        MessageBroker.Default.Receive<MainMenuMessage>().Subscribe(OnMainMenuMessage).AddTo(this);
     }
-
-    // Update is called once per frame
-    void Update()
+    
+    private void OnMainMenuMessage(MainMenuMessage message)
     {
-        
+        // Restart the scene here
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+
     }
 }
