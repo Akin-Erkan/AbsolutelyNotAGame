@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UniRx;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -125,12 +126,13 @@ public class BoardManager : MonoBehaviour
         {
             c1.SetMatched();
             c2.SetMatched();
-            // TODO: may fire an event for score increase, sound, animation, etc.
+            MessageBroker.Default.Publish(new CorrectMatchMessage(c1, c2));
+            MessageBroker.Default.Publish(new CurrentBoardStateMessage(controllers)); // Publish current board state to save progress
         }
         else
         {
             StartCoroutine(HideCardsAfterDelay(c1, c2));
-            // TODO: may fire an event for wrong match, sound, animation, etc.
+            MessageBroker.Default.Publish(new WrongMatchMessage(c1, c2)); 
         }
 
         selectedCards.Clear();
@@ -170,3 +172,4 @@ public class BoardManager : MonoBehaviour
     }
 
 }
+
