@@ -11,11 +11,14 @@ public class BoardManager : MonoBehaviour
 {
     public GridLayoutGroup gridParent;
     public GameObject cardViewPrefab;
-    public int gridSize = 4;
+    public int gridSizeX = 4;
+    public int gridSizeY = 4;
     private List<CardData> allCardData;
 
     private List<CardController> controllers = new List<CardController>();
     private List<CardController> selectedCards = new List<CardController>();
+    
+    private int totalAttempts = 0;
     
     private bool canPlay = false;
 
@@ -50,9 +53,11 @@ public class BoardManager : MonoBehaviour
         selectedCards.Clear();
 
         gridParent.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        gridParent.constraintCount = gridSize;
+        gridParent.constraintCount = gridSizeX;
+        gridParent.cellSize = new Vector2(gridParent.cellSize.x / gridSizeX, gridParent.cellSize.y / gridSizeY);
+        
 
-        int totalCardCount = gridSize * gridSize;
+        int totalCardCount = gridSizeX * gridSizeY;
         int pairCount = totalCardCount / 2;
         int srcCardCount = allCardData.Count;
 
@@ -119,6 +124,7 @@ public class BoardManager : MonoBehaviour
 
     void CheckMatch()
     {
+        totalAttempts++;
         var c1 = selectedCards[0];
         var c2 = selectedCards[1];
 
@@ -126,13 +132,14 @@ public class BoardManager : MonoBehaviour
         {
             c1.SetMatched();
             c2.SetMatched();
-            MessageBroker.Default.Publish(new CorrectMatchMessage(c1, c2));
-            MessageBroker.Default.Publish(new CurrentBoardStateMessage(controllers)); // Publish current board state to save progress
+            var totalCorrect = controllers.Count(c => c.IsMatched) / 2;
+            MessageBroker.Default.Publish(new CorrectMatchMessage(c1, c2, totalCorrect, totalAttempts)); 
+            MessageBroker.Default.Publish(new CurrentBoardStateMessage(controllers));
         }
         else
         {
             StartCoroutine(HideCardsAfterDelay(c1, c2));
-            MessageBroker.Default.Publish(new WrongMatchMessage(c1, c2)); 
+            MessageBroker.Default.Publish(new WrongMatchMessage(c1, c2,totalAttempts)); 
         }
 
         selectedCards.Clear();
