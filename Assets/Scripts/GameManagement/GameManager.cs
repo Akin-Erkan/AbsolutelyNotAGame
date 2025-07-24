@@ -5,6 +5,7 @@ public class GameManager : MonoBehaviour
 {
     private void Awake()
     {
+        Screen.orientation = ScreenOrientation.LandscapeRight;
         MessageBroker.Default.Receive<MainMenuMessage>().Subscribe(OnMainMenuMessage).AddTo(this);
         MessageBroker.Default.Receive<EndGameScoreMessage>().Subscribe(OnEndGameScoreMessage).AddTo(this);
         MessageBroker.Default.Receive<EndGameNewGameMessage>().Subscribe(OnEndGameNewGameMessage).AddTo(this);
