@@ -23,12 +23,14 @@ public class HighScoreUpdateMessage
     }
 }
 
-public class GameOverMessage
+public class EndGameScoreMessage
 {
     public int FinalScore { get; }
-
-    public GameOverMessage(int finalScore)
+    
+    public EndGameScoreMessage(int finalScore)
     {
         FinalScore = finalScore;
+
     }
 }
+

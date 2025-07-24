@@ -20,6 +20,8 @@ public class UIController : MonoBehaviour
     private TextMeshProUGUI matchesText;
     [SerializeField]
     private TextMeshProUGUI turnsText;
+    [SerializeField]
+    private TextMeshProUGUI endgameScoreText;
     
     [SerializeField]
     private Button newGameButton;
@@ -27,6 +29,8 @@ public class UIController : MonoBehaviour
     private Button loadGameButton;
     [SerializeField]
     private Button mainMenuButton;
+    [SerializeField]
+    private Button endGameContinueButton;
     
     
     
@@ -47,6 +51,8 @@ public class UIController : MonoBehaviour
         MessageBroker.Default.Receive<LoadedGameSaveDataMessage>()
             .Subscribe(OnGameSaveDataLoaded)
             .AddTo(this);
+
+        MessageBroker.Default.Receive<GameOverMessage>().Subscribe(OnGameOverMessage).AddTo(this);
         
         newGameButton.onClick.AddListener(() =>
         {
@@ -69,11 +75,23 @@ public class UIController : MonoBehaviour
             MessageBroker.Default.Publish(new MainMenuMessage());
         });
         
+        endGameContinueButton.onClick.AddListener(() =>
+        {
+            MessageBroker.Default.Publish(new EndGameNewGameMessage());
+        });
     }
     
     private void OnScoreUpdate(ScoreUpdateMessage message)
     {
         scorePointText.text = message.Score.ToString();
+    }
+    
+    private void OnGameOverMessage(GameOverMessage message)
+    {
+        startPanel.SetActive(false);
+        gamePanel.SetActive(false);
+        endPanel.SetActive(true);
+        endgameScoreText.text = scorePointText.text;
     }
     
     private void OnCorrectMatchMessage(CorrectMatchMessage message)
@@ -95,6 +113,10 @@ public class UIController : MonoBehaviour
             scorePointText.text = message.GameSaveData.score.ToString();
             matchesText.text = message.GameSaveData.matches.ToString();
             turnsText.text = message.GameSaveData.turns.ToString();
+        }
+        else
+        {
+            loadGameButton.gameObject.SetActive(false);
         }
     }
 

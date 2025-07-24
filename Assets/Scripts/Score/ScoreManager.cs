@@ -15,6 +15,12 @@ public class ScoreManager : MonoBehaviour
         MessageBroker.Default.Receive<CorrectMatchMessage>().Subscribe(OnCorrectMatch).AddTo(this);
         MessageBroker.Default.Receive<WrongMatchMessage>().Subscribe(OnWrongMatch).AddTo(this);
         MessageBroker.Default.Receive<LoadedGameSaveDataMessage>().Subscribe(OnGameSaveDataLoaded).AddTo(this);
+        MessageBroker.Default.Receive<AllCardsMatchedMessage>().Subscribe(OnAllCardsMatched).AddTo(this);
+    }
+    
+    private void OnAllCardsMatched(AllCardsMatchedMessage message)
+    {
+        MessageBroker.Default.Publish(new EndGameScoreMessage(score));
     }
     
     private void OnGameSaveDataLoaded(LoadedGameSaveDataMessage message)

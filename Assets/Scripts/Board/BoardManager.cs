@@ -203,7 +203,6 @@ public class BoardManager : MonoBehaviour
             return;
 
         controller.Reveal();
-        print("Card Selected: " + controller.Data.Name);
         selectedCards.Add(controller);
 
         if (selectedCards.Count == 2)
@@ -224,6 +223,10 @@ public class BoardManager : MonoBehaviour
             var totalCorrect = controllers.Count(c => c.IsMatched) / 2;
             MessageBroker.Default.Publish(new CorrectMatchMessage(c1, c2, totalCorrect, totalAttempts)); 
             MessageBroker.Default.Publish(new CurrentBoardStateMessage(controllers));
+            if (matchedCardIds.Count == controllers.Count/2)
+            {
+                MessageBroker.Default.Publish(new AllCardsMatchedMessage(controllers));
+            }
         }
         else
         {

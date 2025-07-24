@@ -39,3 +39,13 @@ public class WrongMatchMessage
         this.totalAttempts = totalAttempts;
     }
 }
+
+public class AllCardsMatchedMessage
+{
+    public List<CardController> MatchedCards { get; }
+
+    public AllCardsMatchedMessage(List<CardController> matchedCards)
+    {
+        MatchedCards = matchedCards;
+    }
+}
