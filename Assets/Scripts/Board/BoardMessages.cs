@@ -49,3 +49,13 @@ public class AllCardsMatchedMessage
         MatchedCards = matchedCards;
     }
 }
+
+public class CardSelectedMessage
+{
+    public CardController SelectedCard { get; }
+
+    public CardSelectedMessage(CardController selectedCard)
+    {
+        SelectedCard = selectedCard;
+    }
+}

@@ -204,6 +204,7 @@ public class BoardManager : MonoBehaviour
 
         controller.Reveal();
         selectedCards.Add(controller);
+        MessageBroker.Default.Publish(new CardSelectedMessage(controller));
 
         if (selectedCards.Count == 2)
             CheckMatch();
